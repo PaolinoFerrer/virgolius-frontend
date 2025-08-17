@@ -41,6 +41,10 @@ class ApiService {
     return this.request(`/restaurants/${id}`)
   }
 
+  async getRestaurantBySlug(slug) {
+    return this.request(`/restaurants/slug/${slug}`)
+  }
+
   async getRestaurantRankings(type = 'public') {
     return this.request(`/restaurants/rankings?type=${type}`)
   }

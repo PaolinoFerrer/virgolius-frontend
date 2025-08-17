@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
@@ -10,6 +11,23 @@ const HomePage = () => {
   const [restaurants, setRestaurants] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  // Funzione per generare slug SEO-friendly dal nome del ristorante
+  const generateSlug = (name) => {
+    return name
+      .toLowerCase()
+      .replace(/[àáâãäå]/g, 'a')
+      .replace(/[èéêë]/g, 'e')
+      .replace(/[ìíîï]/g, 'i')
+      .replace(/[òóôõö]/g, 'o')
+      .replace(/[ùúûü]/g, 'u')
+      .replace(/[ñ]/g, 'n')
+      .replace(/[ç]/g, 'c')
+      .replace(/[^a-z0-9\s-]/g, '') // Rimuove caratteri speciali
+      .replace(/\s+/g, '-') // Sostituisce spazi con trattini
+      .replace(/-+/g, '-') // Rimuove trattini multipli
+      .trim('-') // Rimuove trattini all'inizio e alla fine
+  }
 
   // Mock data come fallback
   const mockRestaurants = {
@@ -131,69 +149,75 @@ const HomePage = () => {
     )
   }
 
-  const RestaurantCard = ({ restaurant, type }) => (
-    <Card className="iosoai-card hover:shadow-lg transition-shadow cursor-pointer">
-      <CardContent className="p-6">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1">
-            <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-              {restaurant.name}
-            </h3>
-            <div className="flex items-center text-gray-600 mb-2">
-              <MapPin className="h-4 w-4 mr-1" />
-              <span className="text-sm">{restaurant.address}</span>
-            </div>
-            <div className="flex items-center space-x-4 mb-3">
-              <Badge variant="secondary">{restaurant.cuisine_type}</Badge>
-              <span className="text-sm font-medium">{restaurant.price_range}</span>
-            </div>
-          </div>
-          <div className="ml-4">
-            <ScoreCircle 
-              score={type === 'pubblico' ? restaurant.iosoai_score : restaurant.expert_score} 
-            />
-            <p className="text-xs text-center mt-1 text-gray-600">
-              {type === 'pubblico' ? 'Punteggio IosoAI' : 'Punteggio Esperti'}
-            </p>
-          </div>
-        </div>
-
-        {type === 'pubblico' ? (
-          <div>
-            <div className="flex items-center mb-3">
-              <Star className="h-4 w-4 text-yellow-500 mr-1" />
-              <span className="font-medium">{restaurant.google_rating}</span>
-              <span className="text-gray-600 ml-2">({restaurant.review_count} recensioni)</span>
-            </div>
-            <div>
-              <p className="text-sm font-medium mb-2">Piatti Popolari:</p>
-              <div className="flex flex-wrap gap-2">
-                {restaurant.popular_dishes?.map((dish, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
-                    {dish.name} ({dish.mentions})
-                  </Badge>
-                ))}
+  const RestaurantCard = ({ restaurant, type }) => {
+    const slug = restaurant.slug || generateSlug(restaurant.name)
+    
+    return (
+      <Link to={`/ristoranti/${slug}`} className="block">
+        <Card className="iosoai-card hover:shadow-lg transition-shadow cursor-pointer">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+                  {restaurant.name}
+                </h3>
+                <div className="flex items-center text-gray-600 mb-2">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  <span className="text-sm">{restaurant.address}</span>
+                </div>
+                <div className="flex items-center space-x-4 mb-3">
+                  <Badge variant="secondary">{restaurant.cuisine_type}</Badge>
+                  <span className="text-sm font-medium">{restaurant.price_range}</span>
+                </div>
+              </div>
+              <div className="ml-4">
+                <ScoreCircle 
+                  score={type === 'pubblico' ? restaurant.iosoai_score : restaurant.expert_score} 
+                />
+                <p className="text-xs text-center mt-1 text-gray-600">
+                  {type === 'pubblico' ? 'Punteggio IosoAI' : 'Punteggio Esperti'}
+                </p>
               </div>
             </div>
-          </div>
-        ) : (
-          <div>
-            <div className="flex items-center mb-3">
-              <Users className="h-4 w-4 text-purple-600 mr-1" />
-              <span className="font-medium">{restaurant.expert_reviews} recensioni esperti</span>
-            </div>
-            <div className="flex items-center">
-              <ChefHat className="h-4 w-4 text-purple-600 mr-1" />
-              <span className="text-sm">Top Blogger: <strong>{restaurant.top_blogger}</strong></span>
-              <Badge variant="secondary" className="ml-2 text-xs">
-                Credibilità {restaurant.blogger_credibility}/10
-              </Badge>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
+
+            {type === 'pubblico' ? (
+              <div>
+                <div className="flex items-center mb-3">
+                  <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                  <span className="font-medium">{restaurant.google_rating}</span>
+                  <span className="text-gray-600 ml-2">({restaurant.review_count} recensioni)</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium mb-2">Piatti Popolari:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {restaurant.popular_dishes?.map((dish, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {dish.name} ({dish.mentions})
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center mb-3">
+                  <Users className="h-4 w-4 text-purple-600 mr-1" />
+                  <span className="font-medium">{restaurant.expert_reviews} recensioni esperti</span>
+                </div>
+                <div className="flex items-center">
+                  <ChefHat className="h-4 w-4 text-purple-600 mr-1" />
+                  <span className="text-sm">Top Blogger: <strong>{restaurant.top_blogger}</strong></span>
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    Credibilità {restaurant.blogger_credibility}/10
+                  </Badge>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </Link>
+    )
+  }
 
   return (
     <div className="min-h-screen iosoai-bg">

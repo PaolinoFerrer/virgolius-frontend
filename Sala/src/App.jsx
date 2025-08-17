@@ -5,6 +5,7 @@ import ClassifichePage from './pages/ClassifichePage.jsx'
 import CercaPiattiPage from './pages/CercaPiattiPage.jsx'
 import FoodBloggerPage from './pages/FoodBloggerPage.jsx'
 import InfoPage from './pages/InfoPage.jsx'
+import RestaurantDetailPage from './pages/RestaurantDetailPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 import './App.css'
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="/cerca-piatti" element={<CercaPiattiPage />} />
           <Route path="/foodblogger" element={<FoodBloggerPage />} />
           <Route path="/info" element={<InfoPage />} />
+          <Route path="/ristoranti/:slug" element={<RestaurantDetailPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
